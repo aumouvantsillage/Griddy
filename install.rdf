@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#"
+     xmlns:songbird="http://www.songbirdnest.com/2007/addon-metadata-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>{8e2bbd17-bc35-4786-b1da-55f206ecf22c}</em:id>
+    <em:type>2</em:type>
+    <em:name>Griddy</em:name>
+    <em:version>0.3.0</em:version>
+    <em:creator>Guillaume &lt;Senshu&gt; Savaton</em:creator>
+    <em:description>Album art shown in a grid</em:description>
+    <em:optionsURL>chrome://griddy/content/options.xul</em:optionsURL>
+
+    <em:targetApplication>
+      <Description>
+        <em:id>songbird@songbirdnest.com</em:id>
+        <em:minVersion>1.1.0</em:minVersion>
+        <em:maxVersion>1.4.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
+    <!-- Register a custom media page.
+         See http://wiki.songbirdnest.com/Developer/Articles/Getting_Started/Building_Media_Views -->
+    <songbird:mediaPage>
+      <Description>
+        <songbird:contentTitle>Griddy</songbird:contentTitle>
+        <songbird:contentUrl>chrome://griddy/content/media-page.xul</songbird:contentUrl>
+      </Description>
+    </songbird:mediaPage>
+
+  </Description>
+</RDF>

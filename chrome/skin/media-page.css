@@ -1,0 +1,11 @@
+
+griddy {
+  -moz-binding: url('chrome://griddy/content/griddy.xml#griddy');
+  background: black;
+  overflow: auto;
+}
+
+griddy tooltip {
+  -moz-box-orient: vertical;
+}
+

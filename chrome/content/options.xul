@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE prefwindow SYSTEM "chrome://griddy/locale/options.dtd">
+<!-- OPTIONS WINDOW - Specified in install.rdf, launched from the Extension Manager -->
+<prefwindow id="griddyPreferences" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" title="&griddy.prefwindow.title;">
+  <prefpane id="pane1" label="&griddy.prefpane.title;">
+    <preferences>
+      <preference id="albumSize" name="extensions.griddy.albumSize" type="int"/>
+    </preferences>
+    <label accesskey="&griddy.prefs.albumSize.accesskey;" control="textbox-albumSize">&griddy.prefs.albumSize.label;</label><textbox id="textbox-albumSize" preference="albumSize"/>
+  </prefpane>
+</prefwindow>

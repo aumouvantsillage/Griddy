@@ -1,0 +1,4 @@
+<!ENTITY griddy.helloworld.label "Do HelloWorld">
+<!ENTITY griddy.helloworld.accesskey "H">
+<!ENTITY griddy.pane.label "This is a Display Pane">
+<!ENTITY griddy.pane.button "Learn More">

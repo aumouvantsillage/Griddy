@@ -1,0 +1,5 @@
+<!ENTITY griddy.prefwindow.title "Préférences de Griddy">
+<!ENTITY griddy.prefpane.title "Préférences de Griddy">
+<!ENTITY griddy.prefs.albumSize.accesskey "T">
+<!ENTITY griddy.prefs.albumSize.label "Taille des albums (en pixels)">
+

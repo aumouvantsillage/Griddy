@@ -1,0 +1,277 @@
+<?xml version="1.0"?>
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <binding id="griddy">
+    <content>
+      <!-- The tooltips associated with albums in the grid view -->
+      <xul:popupset anonid="griddy-tooltips" />
+
+      <!-- The album grid -->
+      <xul:grid anonid="griddy-grid" flex="1">
+        <xul:columns anonid="griddy-columns" />
+        <xul:rows anonid="griddy-rows" />
+      </xul:grid>
+    </content>
+
+    <implementation>
+      <!--
+        The number of albums shown in the grid.
+      -->
+      <field name="albumCount">0</field>
+
+      <!--
+        The spacing between album images, as a ratio of the preferred image size.
+      -->
+      <field name="albumSpacingRatio">0.1</field>
+
+      <!--
+        The <popupset> element for tooltips in the current widget
+      -->
+      <property name="tooltipsPopupsetElement">
+        <getter><![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", "griddy-tooltips");
+        ]]></getter>
+      </property>
+
+      <!--
+        The <grid> element of the current widget
+      -->
+      <property name="gridElement">
+        <getter><![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", "griddy-grid");
+        ]]></getter>
+      </property>
+
+      <!--
+        The <columns> element of the grid
+      -->
+      <property name="columnsElement">
+        <getter><![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", "griddy-columns");
+        ]]></getter>
+      </property>
+
+      <!--
+        The <rows> element of the grid
+      -->
+      <property name="rowsElement">
+        <getter><![CDATA[
+          return document.getAnonymousElementByAttribute(this, "anonid", "griddy-rows");
+        ]]></getter>
+      </property>
+
+      <!--
+        The minimum spacing between albums in the grid (in pixels)
+      -->
+      <property name="albumSpacing">
+        <getter><![CDATA[
+          return this.albumSpacingRatio * window.mediaPage.preferredAlbumSize;
+        ]]></getter>
+      </property>
+
+      <!--
+        The number of elements per row of the grid (including album images and spacers.
+        This property is computed based on the width of the containing page.
+      -->
+      <property name="childrenPerRow">
+        <getter><![CDATA[
+          var albumsPerRow = Math.floor((this.parentNode.boxObject.width - this.albumSpacing) / (window.mediaPage.preferredAlbumSize + this.albumSpacing));
+          if(albumsPerRow == 0)
+            albumsPerRow = 1;
+          return 2*albumsPerRow+1;
+        ]]></getter>
+      </property>
+
+      <!--
+        The CSS style to apply to the grid and to each of its row,
+        to set the correct spacing around album images.
+      -->
+      <property name="verticalMarginStyle">
+        <getter><![CDATA[
+          var rowMargin = Math.floor(this.albumSpacing/2);
+          return "margin-top:" + rowMargin + "px;margin-bottom:" + rowMargin + "px;";
+        ]]></getter>
+      </property>
+
+      <!--
+        Clean the grid.
+        This method removes all albums from the grid and prepares the grid to be filled.
+      -->
+      <method name="clean">
+        <body><![CDATA[
+          // Empty the grid
+          while(this.tooltipsPopupsetElement.firstChild)
+            this.tooltipsPopupsetElement.removeChild(this.tooltipsPopupsetElement.firstChild);
+          while(this.columnsElement.firstChild)
+            this.columnsElement.removeChild(this.columnsElement.firstChild);
+          while(this.rowsElement.firstChild)
+            this.rowsElement.removeChild(this.rowsElement.firstChild);
+
+          // Add columns to the grid according to the current window size.
+          // Every  even column will hold spacers and will have flex=1.
+          var childrenPerRow = this.childrenPerRow;
+          for(var i=0; i<childrenPerRow; i++) {
+            var newColumn = document.createElement("column")
+            if(i%2 == 0)
+              newColumn.setAttribute("flex", 1);
+            this.columnsElement.appendChild(newColumn);
+          }
+
+          this.albumCount = 0;
+          this.gridElement.setAttribute("style", this.verticalMarginStyle);
+        ]]></body>
+      </method>
+
+      <!--
+        This method creates and returns a new grid row,
+        with a spacer in its first column, and vertical margin set.
+      -->
+      <method name="createRow">
+        <body><![CDATA[
+          var newRow = document.createElement("row");
+          newRow.setAttribute("style", this.verticalMarginStyle);
+          newRow.appendChild(document.createElement("spacer"));
+          return newRow;
+        ]]></body>
+      </method>
+
+      <!--
+        Add an album to the grid, with given album name, artist name, art URL and callbacks.
+        An image element will be added to the grid and will react to the following events:
+        - click will trigger album selection in the playlist
+        - double-click will trigger album playback
+      -->
+      <method name="addAlbum">
+        <parameter name="albumName" />
+        <parameter name="albumArtist" />
+        <parameter name="albumArtURL" />
+        <body><![CDATA[
+          var albumSize = window.mediaPage.preferredAlbumSize;
+          var tooltipId = "griddy-tooltip-" + this.albumCount;
+
+          // If the grid is empty, or the last row is full, create a new row
+          if(this.rowsElement.lastChild == null || this.rowsElement.lastChild.childNodes.length == this.childrenPerRow)
+            this.rowsElement.appendChild(this.createRow());
+
+          // Add a new image to the last row of the grid
+          var albumImage = document.createElement("image");
+          albumImage.setAttribute("src", albumArtURL);
+          albumImage.setAttribute("width", albumSize);
+          albumImage.setAttribute("height", albumSize);
+          albumImage.setAttribute("tooltip", tooltipId);
+          albumImage.setAttribute("contextmenu", "griddy-album-context-menu");
+
+          albumImage.onclick = function(anEvent) {
+            if(anEvent.button == 0) // Left button
+              window.mediaPage.selectAlbum(albumName);
+          }
+          albumImage.ondblclick = function(anEvent) {
+            if(anEvent.button == 0) // Left button
+              window.mediaPage.playSelectedAlbum();
+          }
+          albumImage.oncontextmenu = function(anEvent) {
+            window.mediaPage._albumNameFromContextMenu = albumName;
+          }
+
+          this.rowsElement.lastChild.appendChild(albumImage);
+          this.rowsElement.lastChild.appendChild(document.createElement("spacer"));
+
+          // Add a new tooltip
+          var tooltip = document.createElement("tooltip");
+          tooltip.setAttribute("id", tooltipId);
+
+          if(albumArtist != null && albumArtist != "") {
+            var tooltipLabelArtist = document.createElement("label");
+            tooltipLabelArtist.setAttribute("value", albumArtist);
+            tooltip.appendChild(tooltipLabelArtist);
+          }
+          if(albumName != null && albumName != "") {
+            var tooltipLabelAlbumName = document.createElement("label");
+            tooltipLabelAlbumName.setAttribute("value", albumName);
+            tooltip.appendChild(tooltipLabelAlbumName);
+          }
+          this.tooltipsPopupsetElement.appendChild(tooltip);
+
+          this.albumCount ++;
+        ]]></body>
+      </method>
+
+      <!--
+        Reorganize the grid by placing the correct number of albums in each row.
+        This method should be called after the current page has been resized.
+      -->
+      <method name="updateAlbumsPerRow">
+        <body><![CDATA[
+          var childrenPerRow = this.childrenPerRow;
+
+          // Check the number of columns in the grid and update it if needed
+          if(this.columnsElement.childNodes.length == childrenPerRow)
+            return;
+
+          while(this.columnsElement.childNodes.length > childrenPerRow)
+            this.columnsElement.removeChild(this.columnsElement.firstChild);
+
+          while(this.columnsElement.childNodes.length < childrenPerRow) {
+            this.columnsElement.appendChild(document.createElement("column"));
+            this.columnsElement.appendChild(document.createElement("column"));
+            this.columnsElement.lastChild.setAttribute("flex", 1);
+          }
+
+          // Update the contents of the rows
+          var currentRow = this.rowsElement.firstChild;
+          while(currentRow != null) {
+            // If current row has too many children
+            if(currentRow.childNodes.length > childrenPerRow) {
+              // Insert new row after the current row
+              var newRow = this.createRow();
+              if(currentRow.nextSibling == null)
+                this.rowsElement.appendChild(newRow);
+              else
+                this.rowsElement.insertBefore(newRow, currentRow.nextSibling);
+
+              // Move children in excess to the new row
+              while(currentRow.childNodes.length > childrenPerRow)
+                newRow.appendChild(currentRow.removeChild(currentRow.childNodes[childrenPerRow]));
+            }
+            // If current row has not enough children
+            else while(currentRow.childNodes.length < childrenPerRow && currentRow.nextSibling != null) {
+              // Move second child of next row to the end of the current row
+              currentRow.appendChild(currentRow.nextSibling.removeChild(currentRow.nextSibling.childNodes[1]));
+              // If the next row has no more images in it, remove it
+              if(currentRow.nextSibling.childNodes.length <= 1)
+                this.rowsElement.removeChild(currentRow.nextSibling);
+            }
+            currentRow = currentRow.nextSibling;
+          }
+        ]]></body>
+      </method>
+
+      <!--
+        Modify the size of all images in the grid and adjust the vertical margins.
+        This method should be called when the user preference for album size has been changed.
+      -->
+      <method name="updateAlbumSize">
+        <body><![CDATA[
+          this.gridElement.setAttribute("style", this.verticalMarginStyle);
+          var albumSize = window.mediaPage.preferredAlbumSize;
+          var currentRow = this.rowsElement.firstChild;
+          while(currentRow != null) {
+            currentRow.setAttribute("style", this.verticalMarginStyle);
+            var img = currentRow.childNodes[1];
+            while(img != null) {
+              img.setAttribute("width", albumSize);
+              img.setAttribute("height", albumSize);
+              img = img.nextSibling.nextSibling;
+            }
+            currentRow = currentRow.nextSibling;
+          }
+        ]]></body>
+      </method>
+    </implementation>
+  </binding>
+</bindings>
+

@@ -1,0 +1,10 @@
+content griddy  chrome/content/
+locale  griddy  en-US  chrome/locale/en-US/
+locale  griddy  fr-FR  chrome/locale/fr-FR/
+skin    griddy  classic/1.0 chrome/skin/
+
+
+overlay chrome://songbird/content/xul/layoutWithBrowserOverlay.xul chrome://griddy/content/scripts-overlay.xul
+
+
+
