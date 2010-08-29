@@ -1,0 +1,11 @@
+#!/bin/bash
+LIST="chrome chrome.manifest defaults install.rdf"
+mkdir -p tmp
+for f in $LIST; do
+   cp -r $f tmp
+done
+
+cd tmp
+rm -rf `find . -name '.svn'`
+zip -r ../Griddy.xpi *
+
