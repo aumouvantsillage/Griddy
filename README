@@ -1,0 +1,8 @@
+This is a simple add-on that provides a grid view for your Songbird library.
+
+The media page shows the album grid at the top, and the ordinary Songbird media list at the bottom.
+Clicking on an album cover selects the first track of the corresponding album; double-clicking starts playing it.
+When the search field is used, the contents of the grid are automatically updated to show only the matching albums.
+
+This add-on was written as a mean for the author to learn XUL and other Mozilla technologies:
+users should consider it as alpha quality; developers are welcome to criticize and help.
