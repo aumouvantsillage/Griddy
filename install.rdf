@@ -5,7 +5,7 @@
     <em:id>{8e2bbd17-bc35-4786-b1da-55f206ecf22c}</em:id>
     <em:type>2</em:type>
     <em:name>Griddy</em:name>
-    <em:version>0.3.1</em:version>
+    <em:version>0.3.2</em:version>
     <em:creator>Guillaume &lt;Senshu&gt; Savaton</em:creator>
     <em:description>Album art shown in a grid</em:description>
     <em:optionsURL>chrome://griddy/content/options.xul</em:optionsURL>
